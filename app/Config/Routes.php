@@ -19,3 +19,10 @@ $routes->put('products/(:num)', 'ProductController::update/$1');
 // CodeIgniter 4 Resource Routes akan membuat rute CRUD lengkap secara otomatis
 $routes->resource('categories', ['controller' => 'CategoryController']);
 $routes->resource('products', ['controller' => 'ProductController']);
+
+// Tambahkan grup rute ini
+$routes->group('outgoing', function($routes) {
+    $routes->get('/', 'OutgoingController::index');
+    $routes->get('new', 'OutgoingController::new');
+    $routes->post('/', 'OutgoingController::create');
+});
