@@ -2,30 +2,30 @@
 
 <?= $this->section('content') ?>
 <div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>Daftar Pembelian</h2>
-        <a href="/purchases/new" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Buat Pembelian</a>
-    </div>
-
+    <h2>Barang Masuk dari Pembelian</h2>
+    <p>Berikut adalah daftar pembelian yang barangnya siap untuk diterima.</p>
+    <hr>
     <?php if (session()->getFlashdata('success')) : ?>
     <div class="alert alert-success" role="alert"><?= session()->getFlashdata('success') ?></div>
+    <?php endif; ?>
+     <?php if (session()->getFlashdata('error')) : ?>
+    <div class="alert alert-danger" role="alert"><?= session()->getFlashdata('error') ?></div>
     <?php endif; ?>
 
     <table class="table table-bordered table-striped">
         <thead class="table-dark">
             <tr>
                 <th>#</th>
-                <th>Tanggal</th>
+                <th>Tanggal Pembelian</th>
                 <th>Vendor</th>
-                <th>Total Pembelian</th>
-                <th>Nama Pembeli</th>
-                <th>Status</th>
+                <th>Total</th>
+                <th>Pembeli</th>
                 <th>Aksi</th>
             </tr>
         </thead>
         <tbody>
             <?php if (empty($purchases)): ?>
-                <tr><td colspan="6" class="text-center">Belum ada data pembelian.</td></tr>
+                <tr><td colspan="6" class="text-center">Tidak ada pembelian yang perlu diproses.</td></tr>
             <?php else: ?>
                 <?php $i = 1; foreach($purchases as $purchase): ?>
                 <tr>
@@ -35,14 +35,7 @@
                     <td>Rp <?= number_format($purchase['total_amount'], 0, ',', '.') ?></td>
                     <td><?= esc($purchase['buyer_name']) ?></td>
                     <td>
-                        <?php if ($purchase['status'] == 'Pending'): ?>
-                            <span class="badge bg-warning">Pending</span>
-                        <?php else: ?>
-                            <span class="badge bg-success">Selesai</span>
-                        <?php endif; ?>
-                    </td>
-                    <td>
-                        <a href="/purchases/<?= $purchase['id'] ?>" class="btn btn-sm btn-info"><i class="bi bi-eye"></i> Detail</a>
+                        <a href="/incoming/process/<?= $purchase['id'] ?>" class="btn btn-sm btn-primary">Proses Barang Masuk</a>
                     </td>
                 </tr>
                 <?php endforeach; ?>

@@ -16,6 +16,9 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
+                    <li class="nav-item">
+        <a class="nav-link" href="/dashboard">Dashboard</a>
+    </li>
                     <li class="nav-item"><a class="nav-link" href="/categories">Kategori</a></li>
                     <li class="nav-item"><a class="nav-link" href="/vendors">Vendor</a></li>
                     <li class="nav-item"><a class="nav-link" href="/products">Barang</a></li>
@@ -27,7 +30,15 @@
                             <li><a class="dropdown-item" href="/outgoing">Barang Keluar</a></li>
                         </ul>
                     </li>
-                    <li class="nav-item"><a class="nav-link" href="/reports">Laporan</a></li>
+                    <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Laporan</a>
+    <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="/reports/incoming">Laporan Barang Masuk</a></li>
+        <li><a class="dropdown-item" href="/reports/outgoing">Laporan Barang Keluar</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item" href="/reports/stock">Laporan Stok Barang</a></li>
+    </ul>
+</li>
                 </ul>
             </div>
         </div>

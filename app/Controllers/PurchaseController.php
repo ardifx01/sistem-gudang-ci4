@@ -7,40 +7,51 @@ use App\Models\ProductModel;
 
 class PurchaseController extends BaseController
 {
+    protected $purchaseModel;
+    protected $purchaseDetailModel;
+    protected $vendorModel;
+    protected $productModel;
+
+    public function __construct()
+    {
+        $this->purchaseModel = new PurchaseModel();
+        $this->purchaseDetailModel = new PurchaseDetailModel();
+        $this->vendorModel = new VendorModel();
+        $this->productModel = new ProductModel();
+    }
+
     public function index()
     {
-        $purchaseModel = new PurchaseModel();
         $data = [
             'title' => 'Daftar Transaksi Pembelian',
-            'purchases' => $purchaseModel->getPurchasesWithVendor()
+            // PERBAIKAN DI SINI: Tambahkan ->findAll()
+            'purchases' => $this->purchaseModel->getPurchasesWithVendor()->findAll()
         ];
         return view('purchases/index', $data);
     }
     
     public function show($id)
     {
-        $purchaseModel = new PurchaseModel();
-        $purchaseDetailModel = new PurchaseDetailModel();
-        
-        $purchase = $purchaseModel->getPurchasesWithVendor($id);
-        
+        $purchase = $this->purchaseModel->select('purchases.*, vendors.name as vendor_name')->join('vendors', 'vendors.id = purchases.vendor_id')->where('purchases.id', $id)->first();
+
+        if (empty($purchase)) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Data Pembelian dengan ID ' . $id . ' tidak ditemukan.');
+        }
+
         $data = [
             'title' => 'Detail Pembelian',
-            'purchase' => $purchaseModel->select('purchases.*, vendors.name as vendor_name')->join('vendors', 'vendors.id = purchases.vendor_id')->where('purchases.id', $id)->first(),
-            'details' => $purchaseDetailModel->getPurchaseDetails($id)
+            'purchase' => $purchase,
+            'details' => $this->purchaseDetailModel->getPurchaseDetails($id)
         ];
         return view('purchases/show', $data);
     }
 
     public function new()
     {
-        $vendorModel = new VendorModel();
-        $productModel = new ProductModel();
-
         $data = [
             'title' => 'Buat Transaksi Pembelian',
-            'vendors' => $vendorModel->orderBy('name', 'ASC')->findAll(),
-            'products' => $productModel->orderBy('name', 'ASC')->findAll(),
+            'vendors' => $this->vendorModel->orderBy('name', 'ASC')->findAll(),
+            'products' => $this->productModel->orderBy('name', 'ASC')->findAll(),
             'validation' => \Config\Services::validation()
         ];
         return view('purchases/new', $data);
@@ -62,33 +73,29 @@ class PurchaseController extends BaseController
         $db->transStart();
         
         try {
-            $purchaseModel = new PurchaseModel();
-            $purchaseDetailModel = new PurchaseDetailModel();
-
-            $purchaseModel->save([
+            $this->purchaseModel->insert([
                 'vendor_id' => $this->request->getVar('vendor_id'),
                 'purchase_date' => $this->request->getVar('purchase_date'),
                 'buyer_name' => $this->request->getVar('buyer_name'),
+                'status' => 'Pending',
             ]);
-            $purchaseId = $purchaseModel->getInsertID();
+            $purchaseId = $this->purchaseModel->getInsertID();
             
             $totalAmount = 0;
             $products = $this->request->getVar('products');
 
             foreach ($products as $product) {
-                if (empty($product['product_id']) || empty($product['quantity']) || empty($product['price'])) {
-                    continue; // Lewati baris yang tidak lengkap
-                }
-                $purchaseDetailModel->save([
+                if (empty($product['product_id']) || empty($product['quantity'])) { continue; }
+                $this->purchaseDetailModel->save([
                     'purchase_id' => $purchaseId,
                     'product_id' => $product['product_id'],
                     'quantity' => $product['quantity'],
-                    'price' => $product['price'],
+                    'price' => $product['price'] ?? 0,
                 ]);
-                $totalAmount += $product['quantity'] * $product['price'];
+                $totalAmount += $product['quantity'] * ($product['price'] ?? 0);
             }
             
-            $purchaseModel->update($purchaseId, ['total_amount' => $totalAmount]);
+            $this->purchaseModel->update($purchaseId, ['total_amount' => $totalAmount]);
 
             $db->transComplete();
             session()->setFlashdata('success', 'Transaksi pembelian berhasil disimpan.');

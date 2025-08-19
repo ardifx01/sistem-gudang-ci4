@@ -8,7 +8,10 @@ use CodeIgniter\Router\RouteCollection;
 // $routes->get('/', 'Home::index');
 
 // Alihkan halaman utama ke halaman kategori
-$routes->get('/', 'CategoryController::index');
+// $routes->get('/', 'CategoryController::index');
+
+$routes->get('/', 'DashboardController::index');
+$routes->get('dashboard', 'DashboardController::index');
 
 // Definisikan rute edit dan update secara manual untuk mengatasi masalah
 $routes->get('categories/edit/(:num)', 'CategoryController::edit/$1');
@@ -34,3 +37,17 @@ $routes->get('purchases', 'PurchaseController::index');
 $routes->get('purchases/new', 'PurchaseController::new'); 
 $routes->post('purchases', 'PurchaseController::create'); 
 $routes->get('purchases/(:num)', 'PurchaseController::show/$1'); 
+
+$routes->group('incoming', function($routes) {
+    $routes->get('/', 'IncomingController::index');
+    $routes->get('process/(:num)', 'IncomingController::process/$1');
+    $routes->post('/', 'IncomingController::create');
+});
+
+// Tambahkan grup rute ini
+$routes->group('reports', function($routes) {
+    $routes->get('incoming', 'ReportController::incoming');
+    $routes->get('outgoing', 'ReportController::outgoing');
+    $routes->get('stock', 'ReportController::stock');
+});
+
