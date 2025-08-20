@@ -51,6 +51,7 @@ Aplikasi ini dirancang untuk memenuhi semua kebutuhan fungsional yang diberikan 
 ---
 Proyek ini dibangun di atas arsitektur **Model-View-Controller (MVC)** dari CodeIgniter 4, dengan struktur folder standar yang telah disesuaikan untuk kemudahan pengembangan dan pemeliharaan.
 
+```
 /SISTEM-GUDANG
 ├── app/
 │   ├── Controllers/     // Berisi semua logika bisnis dan routing permintaan
@@ -66,6 +67,9 @@ Proyek ini dibangun di atas arsitektur **Model-View-Controller (MVC)** dari Code
 ├── writable/            // Folder untuk cache, log, dan sesi
 ├── vendor/              // Dependensi yang diinstal oleh Composer
 └── README.md
+```
+
+---
 
 ## Struktur Database
 ---
