@@ -149,7 +149,7 @@ Secara keseluruhan, proyek ini tidak hanya memenuhi persyaratan fungsional, teta
 ## Screenshots UI
 
 1.  **Halaman Dashboard**
-   <img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/0d23d2af-6ded-467e-b178-65a91f88ea09" />
+    <img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/0d23d2af-6ded-467e-b178-65a91f88ea09" />
 
 2.  **Halaman Barang**
     <img width="1893" height="1079" alt="image" src="https://github.com/user-attachments/assets/9755827a-1aea-48d7-8047-6fef62e5d7be" />
