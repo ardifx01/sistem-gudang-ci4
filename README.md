@@ -1,68 +1,143 @@
-# CodeIgniter 4 Application Starter
+# GudangKu 📦: Sistem Manajemen Gudang Sederhana
 
-## What is CodeIgniter?
+Aplikasi berbasis web untuk mencatat keluar masuk barang dan memantau stok gudang secara efektif. Proyek ini dikembangkan menggunakan **CodeIgniter 4** dengan _frontend_ **AdminLTE** dan database **MySQL**.
 
-CodeIgniter is a PHP full-stack web framework that is light, fast, flexible and secure.
-More information can be found at the [official site](https://codeigniter.com).
+## Daftar Isi
+---
+- [Fitur Aplikasi](#fitur-aplikasi)
+- [Struktur Proyek](#struktur-proyek)
+- [Struktur Database](#struktur-database)
+- [Petunjuk Instalasi & Setup](#petunjuk-instalasi--setup)
+- [Tantangan dan Solusi](#tantangan-dan-solusi)
+- [Tangkapan Layar (Screenshots)](#tangkapan-layar-screenshots)
 
-This repository holds a composer-installable app starter.
-It has been built from the
-[development repository](https://github.com/codeigniter4/CodeIgniter4).
+## Fitur Aplikasi
+---
+Aplikasi ini dirancang untuk memenuhi semua kebutuhan fungsional yang diberikan dalam studi kasus, dengan penekanan pada logika bisnis yang kuat dan _user experience_ yang baik.
 
-More information about the plans for version 4 can be found in [CodeIgniter 4](https://forum.codeigniter.com/forumdisplay.php?fid=28) on the forums.
+1.  **Dashboard:**
+    -   Menampilkan ringkasan data penting, seperti jumlah jenis barang, total kategori, barang masuk/keluar hari ini, dan daftar barang dengan stok menipis (< 5 unit).
 
-You can read the [user guide](https://codeigniter.com/user_guide/)
-corresponding to the latest version of the framework.
+2.  **Manajemen Barang & Kategori:**
+    -   _CRUD_ (Create, Read, Update, Delete) untuk data barang dan kategori.
+    -   Dilengkapi validasi untuk memastikan **stok tidak boleh minus** dan **kode barang tidak boleh duplikat**.
+    -   Menerapkan integritas referensial: data tidak dapat dihapus jika sudah digunakan di transaksi lain.
 
-## Installation & updates
+3.  **Manajemen Vendor:**
+    -   Fitur _CRUD_ untuk mengelola data pemasok.
+    -   Integrasi dengan modul pembelian untuk memudahkan pencatatan transaksi.
 
-`composer create-project codeigniter4/appstarter` then `composer update` whenever
-there is a new release of the framework.
+4.  **Manajemen Pembelian (Purchase):**
+    -   Mencatat transaksi pembelian secara rinci, termasuk vendor, tanggal, pembeli, dan detail item.
+    -   Setiap transaksi memiliki **status (`Pending` atau `Selesai`)**. Aksi **Edit** dan **Hapus** hanya dapat dilakukan pada transaksi berstatus `Pending` untuk menjaga integritas data.
 
-When updating, check the release notes to see if there are any changes you might need to apply
-to your `app` folder. The affected files can be copied or merged from
-`vendor/codeigniter4/framework/app`.
+5.  **Transaksi Barang Masuk:**
+    -   Menyediakan halaman terpisah untuk memproses barang masuk.
+    -   Hanya menampilkan transaksi pembelian berstatus `Pending` yang siap dikonfirmasi.
+    -   Setelah konfirmasi, **stok barang otomatis bertambah** dan status pembelian berubah menjadi `Selesai`.
 
-## Setup
+6.  **Transaksi Barang Keluar:**
+    -   Mencatat setiap barang yang keluar dari gudang.
+    -   **Stok barang otomatis berkurang** setelah transaksi berhasil.
+    -   Validasi ketat memastikan jumlah yang dikeluarkan tidak melebihi stok yang tersedia.
 
-Copy `env` to `.env` and tailor for your app, specifically the baseURL
-and any database settings.
+7.  **Laporan:**
+    -   Menyediakan laporan terperinci dengan filter rentang tanggal:
+        -   Laporan Barang Masuk.
+        -   Laporan Barang Keluar.
+        -   Laporan Stok Terkini, dengan indikator visual untuk stok yang menipis.
 
-## Important Change with index.php
+## Struktur Proyek
+---
+Proyek ini dibangun di atas arsitektur **Model-View-Controller (MVC)** dari CodeIgniter 4, dengan struktur folder standar yang telah disesuaikan untuk kemudahan pengembangan dan pemeliharaan.
 
-`index.php` is no longer in the root of the project! It has been moved inside the *public* folder,
-for better security and separation of components.
+/SISTEM-GUDANG
+├── app/
+│   ├── Controllers/     // Berisi semua logika bisnis dan routing permintaan
+│   ├── Models/          // Berisi semua interaksi dengan database dan logika data
+│   ├── Views/           // Berisi semua file antarmuka pengguna (UI)
+│   ├── Config/          // Konfigurasi aplikasi (database, routing, dll.)
+│   └── Database/        // Berisi file migrasi atau seeds database
+│
+├── public/              // Folder publik untuk aset (CSS, JS, gambar)
+│   ├── adminlte/
+│   └── img/
+│
+├── writable/            // Folder untuk cache, log, dan sesi
+├── vendor/              // Dependensi yang diinstal oleh Composer
+└── README.md
 
-This means that you should configure your web server to "point" to your project's *public* folder, and
-not to the project root. A better practice would be to configure a virtual host to point there. A poor practice would be to point your web server to the project root and expect to enter *public/...*, as the rest of your logic and the
-framework are exposed.
+## Struktur Database
+---
+Implementasi database disesuaikan dari ERD sederhana yang diberikan untuk mengakomodasi kebutuhan bisnis yang lebih kompleks, khususnya pada modul Pembelian dan Barang Masuk.
 
-**Please** read the user guide for a better explanation of how CI4 works!
+-   `categories`: Data kategori barang.
+-   `vendors`: Data pemasok.
+-   `products`: Master data barang, termasuk `category_id` dan `stock` terkini.
+-   `purchases`: _Header_ transaksi pembelian, berelasi dengan `vendors`. Mencakup `status` (`Pending`, `Selesai`).
+-   `purchase_details`: Detail item untuk setiap transaksi pembelian. Berelasi dengan `purchases` dan `products`.
+-   `incoming_transactions`: Mencatat barang masuk. Berelasi dengan `purchase_id` untuk melacak asal barang masuk.
+-   `outgoing_transactions`: Mencatat barang keluar. Berelasi langsung dengan `products`.
 
-## Repository Management
+## Petunjuk Instalasi & Setup
+---
+Ikuti langkah-langkah berikut untuk menjalankan proyek ini di lingkungan lokal Anda.
 
-We use GitHub issues, in our main repository, to track **BUGS** and to track approved **DEVELOPMENT** work packages.
-We use our [forum](http://forum.codeigniter.com) to provide SUPPORT and to discuss
-FEATURE REQUESTS.
+### Prasyarat
+-   PHP 7.4 atau lebih tinggi
+-   MySQL
+-   Composer
 
-This repository is a "distribution" one, built by our release preparation script.
-Problems with it can be raised on our forum, or as issues in the main repository.
+### Langkah-langkah
+1.  **Clone Repositori:**
+    ```bash
+    git clone https://github.com/zulkarnainizul/sistem-gudang-ci4
+    cd SISTEM-GUDANG
+    ```
 
-## Server Requirements
+2.  **Instal Dependensi Composer:**
+    ```bash
+    composer install
+    ```
 
-PHP version 7.4 or higher is required, with the following extensions installed:
+3.  **Setup Database:**
+    -   Buat database baru di MySQL dengan nama: `db_gudang`.
+    -   Import file `db_gudang.sql` yang ada di _root_ direktori proyek ini ke dalam database yang baru dibuat.
 
-- [intl](http://php.net/manual/en/intl.requirements.php)
-- [mbstring](http://php.net/manual/en/mbstring.installation.php)
+4.  **Konfigurasi Environment:**
+    -   Salin file `.env.example` menjadi `.env`.
+    -   Buka file `.env` dan sesuaikan konfigurasi database dengan kredensial lokal Anda:
+        ```env
+        database.default.hostname = localhost
+        database.default.database = db_gudang
+        database.default.username = root
+        database.default.password =
+        ```
 
-> [!WARNING]
-> The end of life date for PHP 7.4 was November 28, 2022.
-> The end of life date for PHP 8.0 was November 26, 2023.
-> If you are still using PHP 7.4 or 8.0, you should upgrade immediately.
-> The end of life date for PHP 8.1 will be November 25, 2024.
+5.  **Jalankan Aplikasi:**
+    -   Dari terminal, jalankan _server_ bawaan CodeIgniter:
+    ```bash
+    php spark serve
+    ```
+    -   Aplikasi akan dapat diakses di `http://localhost:8080`.
 
-Additionally, make sure that the following extensions are enabled in your PHP:
+## Tantangan dan Solusi
+---
+Pengerjaan proyek ini dalam waktu 3 hari menuntut ketajaman logika dan pengambilan keputusan yang cepat, terutama saat menyikapi perbedaan antara soal dan kebutuhan fungsional yang lebih dalam.
 
-- json (enabled by default - don't turn it off)
-- [mysqlnd](http://php.net/manual/en/mysqlnd.install.php) if you plan to use MySQL
-- [libcurl](http://php.net/manual/en/curl.requirements.php) if you plan to use the HTTP\CURLRequest library
+1.  **Penyesuaian Desain Database & ERD:**
+    -   **Tantangan:** Soal hanya memberikan tabel `Incoming Items` dan `Outgoing Items` yang berelasi langsung dengan `Products`. Namun, fungsionalitas "barang masuk harus berasal dari pembelian" tidak bisa diimplementasikan dengan ERD sederhana tersebut.
+    -   **Solusi:** Saya memutuskan untuk membuat tabel tambahan: `purchases` dan `purchase_details`. Tabel `purchases` berfungsi sebagai _header_ transaksi pembelian, sementara `purchase_details` menyimpan detail item per transaksi. Relasi `incoming_transactions` kemudian diarahkan ke `purchase`, memastikan setiap barang masuk memiliki riwayat pembelian yang jelas.
+
+2.  **Penerapan Logika Bisnis yang Kompleks:**
+    -   **Tantangan:** Menghubungkan proses `Pembelian`, `Barang Masuk`, dan pembaruan `Stok` secara konsisten.
+    -   **Solusi:** Saya mengimplementasikan **status (`Pending` dan `Selesai`)** pada tabel `purchases`. Peningkatan stok tidak dilakukan saat pembelian, tetapi hanya saat transaksi `Barang Masuk` diproses dan statusnya diubah menjadi `Selesai`. Pendekatan ini mencerminkan alur proses bisnis riil.
+
+3.  **Validasi dan Integritas Data:**
+    -   **Tantangan:** Mencegah ketidakkonsistenan data, seperti stok minus atau data yang terhapus secara tidak sengaja.
+    -   **Solusi:**
+        -   **Database Transactions:** Digunakan pada proses krusial (misalnya, update stok) untuk memastikan semua operasi berhasil atau gagal bersamaan.
+        -   **Validasi Form:** Menerapkan validasi di sisi _server_ (CodeIgniter) dan sisi _klien_ (JavaScript) untuk memastikan input data sesuai.
+        -   **Integritas Relasi:** Menerapkan batasan pada penghapusan data untuk mencegah penghapusan data _master_ yang sudah digunakan.
+
+Secara keseluruhan, proyek ini tidak hanya memenuhi persyaratan fungsional, tetapi juga menampilkan pemahaman yang mendalam tentang arsitektur perangkat lunak, logika bisnis, dan praktik _clean code_.
