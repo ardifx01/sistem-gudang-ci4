@@ -19,6 +19,7 @@ class PurchaseModel extends Model
 
         return $this->join('vendors', 'vendors.id = purchases.vendor_id')
                 ->select('purchases.*, vendors.name as vendor_name')
-                ->orderBy('purchases.purchase_date', 'DESC');
+                ->orderBy('purchases.purchase_date', 'DESC')
+                ->orderBy('purchases.status', 'ASC');
     }
 }

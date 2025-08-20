@@ -1,14 +1,17 @@
 <?php namespace App\Controllers;
 
 use App\Models\VendorModel;
+use App\Models\PurchaseModel;
 
 class VendorController extends BaseController
 {
     protected $vendorModel;
+    protected $purchaseModel;
 
     public function __construct()
     {
         $this->vendorModel = new VendorModel();
+        $this->purchaseModel = new PurchaseModel();
     }
 
     public function index()
@@ -23,16 +26,36 @@ class VendorController extends BaseController
     public function new()
     {
         $data = [
-            'title' => 'Tambah Vendor Baru',
-            'validation' => \Config\Services::validation()
+            'title' => 'Tambah Vendor Baru'
         ];
         return view('vendors/new', $data);
     }
 
     public function create()
     {
-        if (!$this->validate(['name' => 'required'])) {
-            return redirect()->to('/vendors/new')->withInput();
+        $rules = [
+            'name' => [
+                'rules'  => 'required',
+                'errors' => [
+                    'required' => 'Nama vendor wajib diisi.'
+                ],
+            ],
+            'address' => [
+                'rules'  => 'required',
+                'errors' => [
+                    'required' => 'Alamat vendor wajib diisi.'
+                ],
+            ],
+            'phone' => [
+                'rules'  => 'required',
+                'errors' => [
+                    'required' => 'No HP vendor wajib diisi.'
+                ],
+            ],
+        ];
+
+        if (! $this->validate($rules)) {
+            return redirect()->back()->withInput();
         }
 
         $this->vendorModel->save([
@@ -48,7 +71,6 @@ class VendorController extends BaseController
     {
         $data = [
             'title' => 'Edit Vendor',
-            'validation' => \Config\Services::validation(),
             'vendor' => $this->vendorModel->find($id)
         ];
         return view('vendors/edit', $data);
@@ -56,8 +78,29 @@ class VendorController extends BaseController
 
     public function update($id)
     {
-        if (!$this->validate(['name' => 'required'])) {
-            return redirect()->to('/vendors/edit/' . $id)->withInput();
+        $rules = [
+            'name' => [
+                'rules'  => 'required',
+                'errors' => [
+                    'required' => 'Nama vendor wajib diisi.'
+                ],
+            ],
+            'address' => [
+                'rules'  => 'required',
+                'errors' => [
+                    'required' => 'Alamat vendor wajib diisi.'
+                ],
+            ],
+            'phone' => [
+                'rules'  => 'required',
+                'errors' => [
+                    'required' => 'No HP vendor wajib diisi.'
+                ],
+            ],
+        ];
+        
+        if (! $this->validate($rules)) {
+            return redirect()->back()->withInput();
         }
 
         $this->vendorModel->update($id, [
@@ -71,12 +114,21 @@ class VendorController extends BaseController
     
     public function delete($id)
     {
-        try {
-            $this->vendorModel->delete($id);
-            session()->setFlashdata('success', 'Data vendor berhasil dihapus.');
-        } catch (\Exception $e) {
-            session()->setFlashdata('error', 'Gagal menghapus vendor, kemungkinan masih terikat dengan data pembelian.');
+        $vendorInPurchase = $this->purchaseModel->where('vendor_id', $id)->countAllResults();
+
+        if ($vendorInPurchase > 0) {
+            // Jika ada pembelian, jangan hapus dan beri pesan error
+            session()->setFlashdata('error', 'Vendor tidak dapat dihapus karena terdapat di data ' . $vendorInPurchase . ' pembelian.');
+            return redirect()->to('/vendors');
         }
+
+        // Jika tidak ada pembelian, baru hapus
+        if ($this->vendorModel->delete($id)) {
+            session()->setFlashdata('success', 'Vendor berhasil dihapus.');
+        } else {
+            session()->setFlashdata('error', 'Gagal menghapus vendor.');
+        }
+        
         return redirect()->to('/vendors');
     }
 }

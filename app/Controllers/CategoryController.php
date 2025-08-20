@@ -1,17 +1,19 @@
 <?php namespace App\Controllers;
 
 use App\Models\CategoryModel;
+use App\Models\ProductModel;
 
 class CategoryController extends BaseController
 {
     protected $categoryModel;
+    protected $productModel;
 
     public function __construct()
     {
         $this->categoryModel = new CategoryModel();
+        $this->productModel = new ProductModel();
     }
 
-    // Menampilkan daftar semua kategori
     public function index()
     {
         $data = [
@@ -20,29 +22,32 @@ class CategoryController extends BaseController
         ];
         return view('categories/index', $data);
     }
-    
-    // Menampilkan form untuk menambah kategori baru
+ 
     public function new()
     {
         $data = [
-            'title' => 'Tambah Kategori Baru',
-            'validation' => \Config\Services::validation()
+            'title' => 'Tambah Kategori Baru'
         ];
         return view('categories/new', $data);
     }
 
-    // Menyimpan data kategori baru ke database
     public function create()
     {
-        // Aturan validasi
-        if (!$this->validate(['name' => 'required|is_unique[categories.name]'])) {
-            return redirect()->to('/categories/new')->withInput();
+        $rules = [
+            'name' => [
+                'rules' => 'required|is_unique[categories.name]',
+                'errors' => [
+                    'required' => 'Nama kategori wajib diisi.',
+                    'is_unique' => 'Nama kategori sudah ada, silakan gunakan nama lain.'
+                ]
+            ]
+        ];
+
+        if (! $this->validate($rules)) {
+            return redirect()->back()->withInput();
         }
 
-        // Simpan data
         $this->categoryModel->save(['name' => $this->request->getVar('name')]);
-        
-        // Set pesan sukses
         session()->setFlashdata('success', 'Kategori baru berhasil ditambahkan.');
         
         return redirect()->to('/categories');
@@ -53,7 +58,6 @@ class CategoryController extends BaseController
     {
         $data = [
             'title' => 'Edit Kategori',
-            'validation' => \Config\Services::validation(),
             'category' => $this->categoryModel->find($id)
         ];
         return view('categories/edit', $data);
@@ -62,17 +66,24 @@ class CategoryController extends BaseController
     // Mengupdate data kategori di database
     public function update($id)
     {
-        // Cek nama kategori lama
-        $oldCategory = $this->categoryModel->find($id);
-        $rule_name = ($oldCategory['name'] == $this->request->getVar('name')) ? 'required' : 'required|is_unique[categories.name]';
-        
-        // Aturan validasi
-        if (!$this->validate(['name' => $rule_name])) {
-            return redirect()->to('/categories/edit/' . $id)->withInput();
+        $rules = [
+            'name' => [
+                'rules' => "required|is_unique[categories.name,id,{$id}]",
+                'errors' => [
+                    'required'  => 'Nama kategori wajib diisi.',
+                    'is_unique' => 'Nama kategori sudah ada, silakan gunakan nama lain.'
+                ]
+            ]
+        ];
+
+        if (! $this->validate($rules)) {
+            return redirect()->back()->withInput();
         }
 
         // Update data
-        $this->categoryModel->update($id, ['name' => $this->request->getVar('name')]);
+        $this->categoryModel->update($id, [
+            'name' => $this->request->getVar('name')
+        ]);
         
         // Set pesan sukses
         session()->setFlashdata('success', 'Kategori berhasil diubah.');
@@ -83,12 +94,19 @@ class CategoryController extends BaseController
     // Menghapus data kategori
     public function delete($id)
     {
-        try {
-            $this->categoryModel->delete($id);
+        $productsInCategory = $this->productModel->where('category_id', $id)->countAllResults();
+
+        if ($productsInCategory > 0) {
+            // Jika ada produk, jangan hapus dan beri pesan error
+            session()->setFlashdata('error', 'Kategori tidak dapat dihapus karena masih digunakan oleh ' . $productsInCategory . ' produk.');
+            return redirect()->to('/categories');
+        }
+
+        // Jika tidak ada produk, baru hapus
+        if ($this->categoryModel->delete($id)) {
             session()->setFlashdata('success', 'Kategori berhasil dihapus.');
-        } catch (\Exception $e) {
-            // Tangani error jika kategori terikat oleh foreign key di tabel products
-            session()->setFlashdata('error', 'Tidak dapat menghapus kategori karena sedang digunakan oleh data produk.');
+        } else {
+            session()->setFlashdata('error', 'Gagal menghapus kategori.');
         }
         
         return redirect()->to('/categories');

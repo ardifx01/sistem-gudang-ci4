@@ -29,8 +29,7 @@ class OutgoingController extends BaseController
     {
         $data = [
             'title' => 'Catat Barang Keluar',
-            'products' => $this->productModel->orderBy('name', 'ASC')->findAll(),
-            'validation' => \Config\Services::validation()
+            'products' => $this->productModel->orderBy('name', 'ASC')->findAll()
         ];
         return view('outgoing/new', $data);
     }
@@ -40,13 +39,31 @@ class OutgoingController extends BaseController
     {
         // Aturan validasi input
         $rules = [
-            'product_id' => 'required',
-            'quantity' => 'required|numeric|greater_than[0]',
-            'outgoing_date' => 'required|valid_date'
+            'product_id' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Produk harus dipilih.'
+                ]
+            ],
+            'quantity' => [
+                'rules' => 'required|numeric|greater_than[0]',
+                'errors' => [
+                    'required'     => 'Jumlah barang wajib diisi.',
+                    'numeric'      => 'Jumlah harus berupa angka.',
+                    'greater_than' => 'Jumlah harus lebih dari 0.'
+                ]
+            ],
+            'outgoing_date' => [
+                'rules' => 'required|valid_date',
+                'errors' => [
+                    'required'   => 'Tanggal keluar barang wajib diisi.',
+                    'valid_date' => 'Format tanggal tidak valid.'
+                ]
+            ]
         ];
 
-        if (!$this->validate($rules)) {
-            return redirect()->to('/outgoing/new')->withInput();
+        if (! $this->validate($rules)) {
+            return redirect()->back()->withInput();
         }
 
         $productId = $this->request->getVar('product_id');

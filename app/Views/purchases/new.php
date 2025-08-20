@@ -13,13 +13,13 @@
         <div class="row">
             <div class="col-md-4 mb-3">
                 <label for="vendor_id" class="form-label">Vendor</label>
-                <select name="vendor_id" id="vendor_id" class="form-select <?= ($validation->hasError('vendor_id')) ? 'is-invalid' : ''; ?>">
+                <select name="vendor_id" id="vendor_id" class="form-select <?= (validation_show_error('vendor_id')) ? 'is-invalid' : ''; ?>">
                     <option value="">-- Pilih Vendor --</option>
                     <?php foreach ($vendors as $vendor): ?>
                     <option value="<?= $vendor['id'] ?>" <?= (old('vendor_id') == $vendor['id']) ? 'selected' : ''; ?>><?= esc($vendor['name']) ?></option>
                     <?php endforeach; ?>
                 </select>
-                <div class="invalid-feedback"><?= $validation->getError('vendor_id') ?></div>
+                <div class="invalid-feedback"><?= validation_show_error('vendor_id') ?></div>
             </div>
             <div class="col-md-4 mb-3">
                 <label for="purchase_date" class="form-label">Tanggal Pembelian</label>
@@ -27,8 +27,8 @@
             </div>
             <div class="col-md-4 mb-3">
                 <label for="buyer_name" class="form-label">Nama Pembeli</label>
-                <input type="text" name="buyer_name" id="buyer_name" class="form-control <?= ($validation->hasError('buyer_name')) ? 'is-invalid' : ''; ?>" value="<?= old('buyer_name') ?>">
-                <div class="invalid-feedback"><?= $validation->getError('buyer_name') ?></div>
+                <input type="text" name="buyer_name" id="buyer_name" class="form-control <?= (validation_show_error('buyer_name')) ? 'is-invalid' : ''; ?>" value="<?= old('buyer_name') ?>">
+                <div class="invalid-feedback"><?= validation_show_error('buyer_name') ?></div>
             </div>
         </div>
         
@@ -44,10 +44,12 @@
                 </tr>
             </thead>
             <tbody id="product-rows">
-                </tbody>
+            </tbody>
         </table>
+        <div class="d-block invalid-feedback">
+            <?= validation_show_error('products') ?>
+        </div>
         <button type="button" id="add-product-row" class="btn btn-success btn-sm"><i class="bi bi-plus"></i> Tambah Barang</button>
-        
         <hr>
         <button type="submit" class="btn btn-primary">Simpan Transaksi Pembelian</button>
         <a href="/purchases" class="btn btn-secondary">Batal</a>

@@ -8,16 +8,24 @@
         <?= csrf_field() ?>
         <div class="mb-3">
             <label for="name" class="form-label">Nama Vendor</label>
-            <input type="text" class="form-control <?= ($validation->hasError('name')) ? 'is-invalid' : ''; ?>" id="name" name="name" value="<?= old('name') ?>" autofocus>
-            <div class="invalid-feedback"><?= $validation->getError('name') ?></div>
+            <input type="text" class="form-control <?= (validation_show_error('name')) ? 'is-invalid' : ''; ?>" id="name" name="name" value="<?= old('name') ?>" autofocus>
+            <div class="invalid-feedback">
+                <?= validation_show_error('name') ?>
+            </div>
         </div>
         <div class="mb-3">
             <label for="address" class="form-label">Alamat</label>
-            <textarea class="form-control" name="address" id="address" rows="3"><?= old('address') ?></textarea>
+            <textarea class="form-control <?= (validation_show_error('address')) ? 'is-invalid' : ''; ?>" name="address" id="address" rows="3"><?= old('address') ?></textarea>
+            <div class="invalid-feedback">
+                <?= validation_show_error('address') ?>
+            </div>
         </div>
         <div class="mb-3">
             <label for="phone" class="form-label">Telepon</label>
-            <input type="text" class="form-control" id="phone" name="phone" value="<?= old('phone') ?>">
+            <input type="text" class="form-control <?= (validation_show_error('phone')) ? 'is-invalid' : ''; ?>" id="phone" name="phone" value="<?= old('phone') ?>">
+            <div class="invalid-feedback">
+                <?= validation_show_error('phone') ?>
+            </div>
         </div>
         <button type="submit" class="btn btn-primary">Simpan</button>
         <a href="/vendors" class="btn btn-secondary">Batal</a>

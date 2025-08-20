@@ -29,8 +29,7 @@ class ProductController extends BaseController
     {
         $data = [
             'title' => 'Tambah Barang Baru',
-            'categories' => $this->categoryModel->findAll(),
-            'validation' => \Config\Services::validation()
+            'categories' => $this->categoryModel->findAll()
         ];
         return view('products/new', $data);
     }
@@ -39,15 +38,43 @@ class ProductController extends BaseController
     public function create()
     {
         $rules = [
-            'name' => 'required',
-            'code' => 'required|is_unique[products.code]',
-            'category_id' => 'required',
-            'unit' => 'required',
-            'stock' => 'required|numeric|greater_than_equal_to[0]'
+            'name' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Nama barang harus diisi.'
+                ]
+            ],
+            'code' => [
+                'rules' => 'required|is_unique[products.code]',
+                'errors' => [
+                    'required' => 'Kode barang wajib diisi.',
+                    'is_unique' => 'Kode barang ini sudah terdaftar. Silakan gunakan kode lain.'
+                ]
+            ],
+            'category_id' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Kategori barang harus dipilih.'
+                ]
+            ],
+            'unit' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Satuan barang (unit) harus diisi.'
+                ]
+            ],
+            'stock' => [
+                'rules' => 'required|numeric|greater_than_equal_to[0]',
+                'errors' => [
+                    'required' => 'Jumlah stok awal harus diisi.',
+                    'numeric' => 'Stok harus berupa angka.',
+                    'greater_than_equal_to' => 'Jumlah stok tidak boleh kurang dari 0.'
+                ]
+            ]
         ];
 
-        if (!$this->validate($rules)) {
-            return redirect()->to('/products/new')->withInput();
+        if (! $this->validate($rules)) {
+            return redirect()->back()->withInput();
         }
 
         $this->productModel->save([
@@ -68,28 +95,52 @@ class ProductController extends BaseController
         $data = [
             'title' => 'Edit Barang',
             'product' => $this->productModel->find($id),
-            'categories' => $this->categoryModel->findAll(),
-            'validation' => \Config\Services::validation()
+            'categories' => $this->categoryModel->findAll()
         ];
         return view('products/edit', $data);
     }
 
     // Mengupdate data barang
     public function update($id)
-    {
-        $oldProduct = $this->productModel->find($id);
-        $rule_code = ($oldProduct['code'] == $this->request->getVar('code')) ? 'required' : 'required|is_unique[products.code]';
-
+    {   
         $rules = [
-            'name' => 'required',
-            'code' => $rule_code,
-            'category_id' => 'required',
-            'unit' => 'required',
-            'stock' => 'required|numeric|greater_than_equal_to[0]'
+            'name' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Nama produk harus diisi.'
+                ]
+            ],
+            'code' => [
+                'rules' => "required|is_unique[products.code,id,{$id}]", 
+                'errors' => [
+                    'required' => 'Kode barang wajib diisi.',
+                    'is_unique' => 'Kode barang ini sudah terdaftar. Silakan gunakan kode lain.'
+                ]
+            ],
+            'category_id' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Kategori produk harus dipilih.'
+                ]
+            ],
+            'unit' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Satuan produk (unit) harus diisi.'
+                ]
+            ],
+            'stock' => [
+                'rules' => 'required|numeric|greater_than_equal_to[0]',
+                'errors' => [
+                    'required' => 'Jumlah stok awal harus diisi.',
+                    'numeric' => 'Stok harus berupa angka.',
+                    'greater_than_equal_to' => 'Jumlah stok tidak boleh kurang dari 0.'
+                ]
+            ]
         ];
 
-        if (!$this->validate($rules)) {
-            return redirect()->to('/products/edit/' . $id)->withInput();
+        if (! $this->validate($rules)) {
+            return redirect()->back()->withInput();
         }
 
         $this->productModel->update($id, [

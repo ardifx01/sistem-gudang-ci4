@@ -33,11 +33,11 @@
                     <th scope="row"><?= $i++ ?></th>
                     <td><?= esc($cat['name']) ?></td>
                     <td>
-                        <a href="/categories/edit/<?= $cat['id'] ?>" class="btn btn-sm btn-warning"><i class="bi bi-pencil-square"></i> Edit</a>
+                        <a href="/categories/edit/<?= $cat['id'] ?>" class="btn btn-sm btn-warning"><i class="bi bi-pencil-square"></i> </a>
                         <form action="/categories/<?= $cat['id'] ?>" method="POST" class="d-inline">
                             <?= csrf_field() ?>
                             <input type="hidden" name="_method" value="DELETE">
-                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus kategori ini?');"><i class="bi bi-trash-fill"></i> Hapus</button>
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus kategori ini?');"><i class="bi bi-trash-fill"></i> </button>
                         </form>
                     </td>
                 </tr>

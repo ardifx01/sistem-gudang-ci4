@@ -51,8 +51,7 @@ class PurchaseController extends BaseController
         $data = [
             'title' => 'Buat Transaksi Pembelian',
             'vendors' => $this->vendorModel->orderBy('name', 'ASC')->findAll(),
-            'products' => $this->productModel->orderBy('name', 'ASC')->findAll(),
-            'validation' => \Config\Services::validation()
+            'products' => $this->productModel->orderBy('name', 'ASC')->findAll()
         ];
         return view('purchases/new', $data);
     }
@@ -60,13 +59,35 @@ class PurchaseController extends BaseController
     public function create()
     {
         $rules = [
-            'vendor_id' => 'required',
-            'purchase_date' => 'required|valid_date',
-            'buyer_name' => 'required',
-            'products' => 'required'
+            'vendor_id' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Vendor atau pemasok harus dipilih.'
+                ]
+            ],
+            'purchase_date' => [
+                'rules' => 'required|valid_date',
+                'errors' => [
+                    'required'   => 'Tanggal pembelian wajib diisi.',
+                    'valid_date' => 'Format tanggal pembelian tidak valid.'
+                ]
+            ],
+            'buyer_name' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Nama pembeli harus diisi.'
+                ]
+            ],
+            'products' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Minimal harus ada satu produk dalam daftar pembelian.'
+                ]
+            ]
         ];
-        if (!$this->validate($rules)) {
-            return redirect()->to('/purchases/new')->withInput();
+        
+        if (! $this->validate($rules)) {
+            return redirect()->back()->withInput();
         }
 
         $db = \Config\Database::connect();

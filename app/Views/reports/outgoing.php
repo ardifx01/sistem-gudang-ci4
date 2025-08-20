@@ -27,7 +27,6 @@
                 <th>Kode Barang</th>
                 <th>Nama Barang</th>
                 <th>Jumlah</th>
-                <th>Keterangan</th>
             </tr>
         </thead>
         <tbody>
@@ -41,7 +40,6 @@
                     <td><?= esc($trx['product_code']) ?></td>
                     <td><?= esc($trx['product_name']) ?></td>
                     <td><?= esc($trx['quantity']) ?></td>
-                    <td><?= esc($trx['description']) ?></td>
                 </tr>
                 <?php endforeach; ?>
             <?php endif; ?>

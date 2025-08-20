@@ -25,7 +25,7 @@
         </thead>
         <tbody>
             <?php if (empty($purchases)): ?>
-                <tr><td colspan="6" class="text-center">Belum ada data pembelian.</td></tr>
+                <tr><td colspan="7" class="text-center">Belum ada data pembelian.</td></tr>
             <?php else: ?>
                 <?php $i = 1; foreach($purchases as $purchase): ?>
                 <tr>

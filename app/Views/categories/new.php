@@ -8,9 +8,9 @@
         <?= csrf_field() ?>
         <div class="mb-3">
             <label for="name" class="form-label">Nama Kategori</label>
-            <input type="text" class="form-control <?= ($validation->hasError('name')) ? 'is-invalid' : ''; ?>" id="name" name="name" value="<?= old('name') ?>" autofocus>
+            <input type="text" class="form-control <?= (validation_show_error('name')) ? 'is-invalid' : ''; ?>" id="name" name="name" value="<?= old('name') ?>" autofocus>
             <div class="invalid-feedback">
-                <?= $validation->getError('name') ?>
+                <?= validation_show_error('name') ?>
             </div>
         </div>
         <button type="submit" class="btn btn-primary">Simpan</button>

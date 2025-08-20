@@ -9,9 +9,9 @@
         <input type="hidden" name="_method" value="PUT">
         <div class="mb-3">
             <label for="name" class="form-label">Nama Kategori</slabel>
-            <input type="text" class="form-control <?= ($validation->hasError('name')) ? 'is-invalid' : ''; ?>" id="name" name="name" value="<?= old('name', $category['name']) ?>" autofocus>
+            <input type="text" class="form-control <?= (validation_show_error('name')) ? 'is-invalid' : ''; ?>" id="name" name="name" value="<?= old('name', $category['name']) ?>" autofocus>
             <div class="invalid-feedback">
-                <?= $validation->getError('name') ?>
+                <?= validation_show_error('name') ?>
             </div>
         </div>
         <button type="submit" class="btn btn-primary">Update</button>
