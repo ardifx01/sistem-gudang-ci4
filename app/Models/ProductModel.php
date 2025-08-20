@@ -36,7 +36,7 @@ class ProductModel extends Model
     {
         return $this->join('categories', 'categories.id = products.category_id')
                     ->select('products.*, categories.name as category_name')
-                    ->orderBy('products.stock', 'ASC')
+                    ->orderBy('products.created_at', 'DESC')
                     ->findAll();
     }
 
