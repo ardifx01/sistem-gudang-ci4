@@ -7,13 +7,11 @@ use App\Models\ProductModel;
 
 class IncomingController extends BaseController
 {
-    // Deklarasikan semua model yang dibutuhkan sebagai properti class
     protected $incomingModel;
     protected $purchaseModel;
     protected $purchaseDetailModel;
     protected $productModel;
 
-    // Inisialisasi semua model sekali saja di dalam constructor
     public function __construct()
     {
         $this->incomingModel = new IncomingTransactionModel();
@@ -29,9 +27,9 @@ class IncomingController extends BaseController
     {
         $data = [
             'title' => 'Barang Masuk',
-            'menu'    => 'transaksi',
-            'submenu' => 'incoming',
-            'purchases' => $this->purchaseModel->where('status', 'Pending')->getPurchasesWithVendor()->findAll()
+            'menu'      => 'transaksi',
+            'submenu'   => 'incoming',
+            'purchases' => $this->purchaseModel->getPendingPurchases()->findAll()
         ];
         return view('incoming/index', $data);
     }
@@ -41,19 +39,21 @@ class IncomingController extends BaseController
      */
     public function process($purchaseId)
     {
-        $data = [
-            'title' => 'Proses',
-            'menu'    => 'transaksi',
-            'submenu' => 'incoming',
-            'purchase' => $this->purchaseModel->select('purchases.*, vendors.name as vendor_name')->join('vendors', 'vendors.id = purchases.vendor_id')->where('purchases.id', $purchaseId)->first(),
-            'details' => $this->purchaseDetailModel->getPurchaseDetails($purchaseId)
-        ];
+        // Gunakan metode dari Model untuk mengambil data
+        $purchase = $this->purchaseModel->getPurchaseWithVendor($purchaseId);
 
         // Cek jika data pembelian tidak ditemukan
-        if (empty($data['purchase'])) {
+        if (empty($purchase)) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Data Pembelian tidak ditemukan.');
         }
 
+        $data = [
+            'title' => 'Proses',
+            'menu'      => 'transaksi',
+            'submenu'   => 'incoming',
+            'purchase' => $purchase,
+            'details' => $this->purchaseDetailModel->getPurchaseDetails($purchaseId)
+        ];
         return view('incoming/process', $data);
     }
 
@@ -64,7 +64,9 @@ class IncomingController extends BaseController
     public function create()
     {
         $purchaseId = $this->request->getVar('purchase_id');
-        $details = $this->purchaseDetailModel->where('purchase_id', $purchaseId)->findAll();
+        
+        // Panggil metode dari Model untuk mengambil detail
+        $details = $this->purchaseDetailModel->getDetailsByPurchaseId($purchaseId);
 
         // Pastikan ada detail barang sebelum melanjutkan
         if (empty($details)) {
@@ -77,12 +79,10 @@ class IncomingController extends BaseController
 
         try {
             foreach ($details as $item) {
-                // 1. Tambah stok di tabel products
-                $this->productModel->set('stock', "stock + {$item['quantity']}", false)
-                                   ->where('id', $item['product_id'])
-                                   ->update();
+                // 1. Tambah stok di tabel products menggunakan metode Model
+                $this->productModel->increaseStock($item['product_id'], $item['quantity']);
 
-                // 2. Simpan ke tabel incoming_transactions
+                // 2. Simpan catatan transaksi di tabel incoming_transactions
                 $this->incomingModel->save([
                     'purchase_id' => $purchaseId,
                     'product_id' => $item['product_id'],

@@ -14,7 +14,6 @@ class OutgoingController extends BaseController
         $this->productModel = new ProductModel();
     }
 
-    // Menampilkan daftar transaksi barang keluar
     public function index()
     {
         $data = [
@@ -26,7 +25,6 @@ class OutgoingController extends BaseController
         return view('outgoing/index', $data);
     }
     
-    // Menampilkan form untuk mencatat transaksi baru
     public function new()
     {
         $data = [
@@ -38,35 +36,9 @@ class OutgoingController extends BaseController
         return view('outgoing/new', $data);
     }
 
-    // Memproses penyimpanan transaksi baru
     public function create()
     {
-        // Aturan validasi input
-        $rules = [
-            'product_id' => [
-                'rules' => 'required',
-                'errors' => [
-                    'required' => 'Produk harus dipilih.'
-                ]
-            ],
-            'quantity' => [
-                'rules' => 'required|numeric|greater_than[0]',
-                'errors' => [
-                    'required'     => 'Jumlah barang wajib diisi.',
-                    'numeric'      => 'Jumlah harus berupa angka.',
-                    'greater_than' => 'Jumlah harus lebih dari 0.'
-                ]
-            ],
-            'outgoing_date' => [
-                'rules' => 'required|valid_date',
-                'errors' => [
-                    'required'   => 'Tanggal keluar barang wajib diisi.',
-                    'valid_date' => 'Format tanggal tidak valid.'
-                ]
-            ]
-        ];
-
-        if (! $this->validate($rules)) {
+        if (!$this->validate($this->_getValidationRules())) {
             return redirect()->back()->withInput();
         }
 
@@ -75,7 +47,7 @@ class OutgoingController extends BaseController
         
         $product = $this->productModel->find($productId);
 
-        // Validasi kedua: cek apakah stok mencukupi
+        // Validasi cek apakah stok mencukupi
         if (!$product || $product['stock'] < $quantity) {
             session()->setFlashdata('error', 'Stok tidak mencukupi untuk barang yang dipilih.');
             return redirect()->to('/outgoing/new')->withInput();
@@ -110,5 +82,32 @@ class OutgoingController extends BaseController
             session()->setFlashdata('error', 'Gagal mencatat transaksi: ' . $e->getMessage());
             return redirect()->to('/outgoing/new')->withInput();
         }
+    }
+
+    private function _getValidationRules(): array
+    {
+        return [
+            'product_id' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Produk harus dipilih.'
+                ]
+            ],
+            'quantity' => [
+                'rules' => 'required|numeric|greater_than[0]',
+                'errors' => [
+                    'required'     => 'Jumlah barang wajib diisi.',
+                    'numeric'      => 'Jumlah harus berupa angka.',
+                    'greater_than' => 'Jumlah harus lebih dari 0.'
+                ]
+            ],
+            'outgoing_date' => [
+                'rules' => 'required|valid_date',
+                'errors' => [
+                    'required'   => 'Tanggal keluar barang wajib diisi.',
+                    'valid_date' => 'Format tanggal tidak valid.'
+                ]
+            ]
+        ];
     }
 }

@@ -20,7 +20,6 @@ class ProductController extends BaseController
         $this->outgoingModel = new OutgoingTransactionModel();
     }
 
-    // Menampilkan daftar semua barang
     public function index()
     {
         $data = [
@@ -31,7 +30,6 @@ class ProductController extends BaseController
         return view('products/index', $data);
     }
 
-    // Menampilkan form untuk menambah barang baru
     public function new()
     {
         $data = [
@@ -42,46 +40,9 @@ class ProductController extends BaseController
         return view('products/new', $data);
     }
 
-    // Menyimpan data barang baru
     public function create()
     {
-        $rules = [
-            'name' => [
-                'rules' => 'required',
-                'errors' => [
-                    'required' => 'Nama barang harus diisi.'
-                ]
-            ],
-            'code' => [
-                'rules' => 'required|is_unique[products.code]',
-                'errors' => [
-                    'required' => 'Kode barang wajib diisi.',
-                    'is_unique' => 'Kode barang ini sudah terdaftar. Silakan gunakan kode lain.'
-                ]
-            ],
-            'category_id' => [
-                'rules' => 'required',
-                'errors' => [
-                    'required' => 'Kategori barang harus dipilih.'
-                ]
-            ],
-            'unit' => [
-                'rules' => 'required',
-                'errors' => [
-                    'required' => 'Satuan barang (unit) harus diisi.'
-                ]
-            ],
-            'stock' => [
-                'rules' => 'required|numeric|greater_than_equal_to[0]',
-                'errors' => [
-                    'required' => 'Jumlah stok awal harus diisi.',
-                    'numeric' => 'Stok harus berupa angka.',
-                    'greater_than_equal_to' => 'Jumlah stok tidak boleh kurang dari 0.'
-                ]
-            ]
-        ];
-
-        if (! $this->validate($rules)) {
+        if (!$this->validate($this->_getValidationRules())) {
             return redirect()->back()->withInput();
         }
 
@@ -97,58 +58,25 @@ class ProductController extends BaseController
         return redirect()->to('/products');
     }
 
-    // Menampilkan form untuk mengedit barang
     public function edit($id)
     {
+        $product = $this->productModel->find($id);
+        $categories = $this->categoryModel->findAll();
+        if (empty($product)) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Data Barang dengan ID ' . $id . ' tidak ditemukan.');
+        }
         $data = [
             'title' => 'Edit',
             'menu' => 'products',
-            'product' => $this->productModel->find($id),
-            'categories' => $this->categoryModel->findAll()
+            'product' => $product,
+            'categories' => $categories
         ];
         return view('products/edit', $data);
     }
 
-    // Mengupdate data barang
     public function update($id)
     {   
-        $rules = [
-            'name' => [
-                'rules' => 'required',
-                'errors' => [
-                    'required' => 'Nama produk harus diisi.'
-                ]
-            ],
-            'code' => [
-                'rules' => "required|is_unique[products.code,id,{$id}]", 
-                'errors' => [
-                    'required' => 'Kode barang wajib diisi.',
-                    'is_unique' => 'Kode barang ini sudah terdaftar. Silakan gunakan kode lain.'
-                ]
-            ],
-            'category_id' => [
-                'rules' => 'required',
-                'errors' => [
-                    'required' => 'Kategori produk harus dipilih.'
-                ]
-            ],
-            'unit' => [
-                'rules' => 'required',
-                'errors' => [
-                    'required' => 'Satuan produk (unit) harus diisi.'
-                ]
-            ],
-            'stock' => [
-                'rules' => 'required|numeric|greater_than_equal_to[0]',
-                'errors' => [
-                    'required' => 'Jumlah stok awal harus diisi.',
-                    'numeric' => 'Stok harus berupa angka.',
-                    'greater_than_equal_to' => 'Jumlah stok tidak boleh kurang dari 0.'
-                ]
-            ]
-        ];
-
-        if (! $this->validate($rules)) {
+        if (!$this->validate($this->_getValidationRules($id))) {
             return redirect()->back()->withInput();
         }
 
@@ -186,5 +114,50 @@ class ProductController extends BaseController
         }
         
         return redirect()->to('/products');
+    }
+
+    private function _getValidationRules(?string $id = null): array
+    {
+        // Aturan unique untuk kode produk disesuaikan jika ini adalah operasi update
+        $codeUniqueRule = 'is_unique[products.code]';
+        if ($id) {
+            $codeUniqueRule = "is_unique[products.code,id,{$id}]";
+        }
+
+        return [
+            'name' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Nama barang harus diisi.'
+                ]
+            ],
+            'code' => [
+                'rules' => 'required|' . $codeUniqueRule,
+                'errors' => [
+                    'required' => 'Kode barang wajib diisi.',
+                    'is_unique' => 'Kode barang ini sudah terdaftar. Silakan gunakan kode lain.'
+                ]
+            ],
+            'category_id' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Kategori barang harus dipilih.'
+                ]
+            ],
+            'unit' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Satuan barang (unit) harus diisi.'
+                ]
+            ],
+            'stock' => [
+                'rules' => 'required|numeric|greater_than_equal_to[0]',
+                'errors' => [
+                    'required' => 'Jumlah stok awal harus diisi.',
+                    'numeric' => 'Stok harus berupa angka.',
+                    'greater_than_equal_to' => 'Jumlah stok tidak boleh kurang dari 0.'
+                ]
+            ]
+        ];
     }
 }

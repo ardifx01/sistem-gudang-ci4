@@ -1,29 +1,35 @@
 <?php namespace App\Controllers;
 
 use App\Models\ProductModel;
-use App\Models\VendorModel;
 use App\Models\IncomingTransactionModel;
 use App\Models\OutgoingTransactionModel;
+use App\Models\CategoryModel; 
 
 class DashboardController extends BaseController
 {
+    protected $productModel;
+    protected $incomingModel;
+    protected $outgoingModel;
+    protected $categoryModel; 
+
+    public function __construct()
+    {
+        $this->productModel = new ProductModel();
+        $this->incomingModel = new IncomingTransactionModel();
+        $this->outgoingModel = new OutgoingTransactionModel();
+        $this->categoryModel = new CategoryModel(); 
+    }
+
     public function index()
     {
-        // Inisialisasi semua model yang dibutuhkan
-        $productModel = new ProductModel();
-        $vendorModel = new VendorModel();
-        $incomingModel = new IncomingTransactionModel();
-        $outgoingModel = new OutgoingTransactionModel();
-
-        // Siapkan data untuk dikirim ke view
         $data = [
             'title' => 'Dashboard',
             'menu'  => 'dashboard',
-            'total_products' => $productModel->countAllResults(),
-            'total_vendors' => $vendorModel->countAllResults(),
-            'incoming_today' => $incomingModel->where('DATE(incoming_date)', date('Y-m-d'))->countAllResults(),
-            'outgoing_today' => $outgoingModel->where('DATE(outgoing_date)', date('Y-m-d'))->countAllResults(),
-            'low_stock_products' => $productModel->where('stock <=', 5)->orderBy('stock', 'ASC')->limit(5)->findAll()
+            'total_products' => $this->productModel->getTotalProducts(),
+            'incoming_today' => $this->incomingModel->getIncomingCountByDate(),
+            'outgoing_today' => $this->outgoingModel->getOutgoingCountByDate(),
+            'total_categories' => $this->categoryModel->getTotalCategories(),
+            'low_stock_products' => $this->productModel->getLowStockProducts()
         ];
 
         return view('dashboard/index', $data);

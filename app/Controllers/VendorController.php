@@ -35,28 +35,7 @@ class VendorController extends BaseController
 
     public function create()
     {
-        $rules = [
-            'name' => [
-                'rules'  => 'required',
-                'errors' => [
-                    'required' => 'Nama vendor wajib diisi.'
-                ],
-            ],
-            'address' => [
-                'rules'  => 'required',
-                'errors' => [
-                    'required' => 'Alamat vendor wajib diisi.'
-                ],
-            ],
-            'phone' => [
-                'rules'  => 'required',
-                'errors' => [
-                    'required' => 'No HP vendor wajib diisi.'
-                ],
-            ],
-        ];
-
-        if (! $this->validate($rules)) {
+        if (!$this->validate($this->_getValidationRules())) {
             return redirect()->back()->withInput();
         }
 
@@ -71,38 +50,21 @@ class VendorController extends BaseController
 
     public function edit($id)
     {
+        $vendor = $this->vendorModel->find($id);
+        if (empty($vendor)) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Data Vendor dengan ID ' . $id . ' tidak ditemukan.');
+        }
         $data = [
             'title' => 'Edit',
             'menu' => 'vendors',
-            'vendor' => $this->vendorModel->find($id)
+            'vendor' => $vendor
         ];
         return view('vendors/edit', $data);
     }
 
     public function update($id)
     {
-        $rules = [
-            'name' => [
-                'rules'  => 'required',
-                'errors' => [
-                    'required' => 'Nama vendor wajib diisi.'
-                ],
-            ],
-            'address' => [
-                'rules'  => 'required',
-                'errors' => [
-                    'required' => 'Alamat vendor wajib diisi.'
-                ],
-            ],
-            'phone' => [
-                'rules'  => 'required',
-                'errors' => [
-                    'required' => 'No HP vendor wajib diisi.'
-                ],
-            ],
-        ];
-        
-        if (! $this->validate($rules)) {
+        if (!$this->validate($this->_getValidationRules())) {
             return redirect()->back()->withInput();
         }
 
@@ -133,5 +95,29 @@ class VendorController extends BaseController
         }
         
         return redirect()->to('/vendors');
+    }
+
+    private function _getValidationRules(): array
+    {
+        return [
+            'name' => [
+                'rules'  => 'required',
+                'errors' => [
+                    'required' => 'Nama vendor wajib diisi.'
+                ],
+            ],
+            'address' => [
+                'rules'  => 'required',
+                'errors' => [
+                    'required' => 'Alamat vendor wajib diisi.'
+                ],
+            ],
+            'phone' => [
+                'rules'  => 'required',
+                'errors' => [
+                    'required' => 'No HP vendor wajib diisi.'
+                ],
+            ],
+        ];
     }
 }

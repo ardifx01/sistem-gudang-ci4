@@ -6,36 +6,40 @@ use App\Models\ProductModel;
 
 class ReportController extends BaseController
 {
+    protected $incomingModel;
+    protected $outgoingModel;
+    protected $productModel;
+
+    public function __construct()
+    {
+        $this->incomingModel = new IncomingTransactionModel();
+        $this->outgoingModel = new OutgoingTransactionModel();
+        $this->productModel = new ProductModel();
+    }
+
     /**
      * Menampilkan laporan barang masuk dengan filter tanggal.
      */
     public function incoming()
     {
-        $incomingModel = new IncomingTransactionModel();
-        
         // Ambil tanggal dari input GET, jika tidak ada, default ke bulan ini
         $startDate = $this->request->getGet('start_date') ?? date('Y-m-01');
         $endDate = $this->request->getGet('end_date') ?? date('Y-m-t');
 
-        $transactions = $incomingModel
-            ->join('products', 'products.id = incoming_transactions.product_id')
-            ->where('incoming_date >=', $startDate)
-            ->where('incoming_date <=', $endDate)
-            ->select('incoming_transactions.*, products.name as product_name, products.code as product_code')
-            ->orderBy('incoming_transactions.incoming_date', 'DESC')
-            ->findAll();
+        // Panggil metode dari model untuk mendapatkan data laporan
+        $transactions = $this->incomingModel->getIncomingReport($startDate, $endDate);
 
-        // TAMBAHKAN INI: Hitung total kuantitas
+        // Hitung total kuantitas
         $totalQuantity = array_sum(array_column($transactions, 'quantity'));
 
         $data = [
             'title' => 'Laporan Barang Masuk',
-            'menu'    => 'reports',
-            'submenu' => 'reports_incoming',
+            'menu'      => 'reports',
+            'submenu'   => 'reports_incoming',
             'transactions' => $transactions,
             'startDate' => $startDate,
             'endDate' => $endDate,
-            'totalQuantity' => $totalQuantity // Kirim total ke view
+            'totalQuantity' => $totalQuantity
         ];
         return view('reports/incoming', $data);
     }
@@ -45,29 +49,23 @@ class ReportController extends BaseController
      */
     public function outgoing()
     {
-        $outgoingModel = new OutgoingTransactionModel();
-        
         $startDate = $this->request->getGet('start_date') ?? date('Y-m-01');
         $endDate = $this->request->getGet('end_date') ?? date('Y-m-t');
         
-        $transactions = $outgoingModel
-            ->join('products', 'products.id = outgoing_transactions.product_id')
-            ->where('outgoing_date >=', $startDate)
-            ->where('outgoing_date <=', $endDate)
-            ->select('outgoing_transactions.*, products.name as product_name, products.code as product_code')
-            ->orderBy('outgoing_transactions.outgoing_date', 'DESC')
-            ->findAll();
+        // Panggil metode dari model untuk mendapatkan data laporan
+        $transactions = $this->outgoingModel->getOutgoingReport($startDate, $endDate);
         
-        // TAMBAHKAN INI: Hitung total kuantitas
+        // Hitung total kuantitas
         $totalQuantity = array_sum(array_column($transactions, 'quantity'));
+        
         $data = [
             'title' => 'Laporan Barang Keluar',
-            'menu'    => 'reports',
-            'submenu' => 'reports_outgoing',
+            'menu'      => 'reports',
+            'submenu'   => 'reports_outgoing',
             'transactions' => $transactions,
             'startDate' => $startDate,
             'endDate' => $endDate,
-            'totalQuantity' => $totalQuantity // Kirim total ke view
+            'totalQuantity' => $totalQuantity
         ];
         return view('reports/outgoing', $data);
     }
@@ -77,12 +75,13 @@ class ReportController extends BaseController
      */
     public function stock()
     {
-        $productModel = new ProductModel();
+        // Panggil metode dari model untuk mendapatkan data
+        $products = $this->productModel->getProductsWithCategory();
         $data = [
             'title' => 'Laporan Stok',
-            'menu'    => 'reports',
-            'submenu' => 'reports_stock',
-            'products' => $productModel->getProductsWithCategory()
+            'menu'      => 'reports',
+            'submenu'   => 'reports_stock',
+            'products' => $products
         ];
         return view('reports/stock', $data);
     }

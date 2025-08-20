@@ -35,17 +35,7 @@ class CategoryController extends BaseController
 
     public function create()
     {
-        $rules = [
-            'name' => [
-                'rules' => 'required|is_unique[categories.name]',
-                'errors' => [
-                    'required' => 'Nama kategori wajib diisi.',
-                    'is_unique' => 'Nama kategori sudah ada, silakan gunakan nama lain.'
-                ]
-            ]
-        ];
-
-        if (! $this->validate($rules)) {
+        if (!$this->validate($this->_getValidationRules())) {
             return redirect()->back()->withInput();
         }
 
@@ -55,46 +45,35 @@ class CategoryController extends BaseController
         return redirect()->to('/categories');
     }
 
-    // Menampilkan form untuk mengedit kategori
     public function edit($id)
     {
+        $category = $this->categoryModel->find($id);
+        if (empty($category)) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Data Kategori dengan ID ' . $id . ' tidak ditemukan.');
+        }
         $data = [
             'title' => 'Edit',
             'menu' => 'categories',
-            'category' => $this->categoryModel->find($id)
+            'category' => $category
         ];
         return view('categories/edit', $data);
     }
 
-    // Mengupdate data kategori di database
     public function update($id)
     {
-        $rules = [
-            'name' => [
-                'rules' => "required|is_unique[categories.name,id,{$id}]",
-                'errors' => [
-                    'required'  => 'Nama kategori wajib diisi.',
-                    'is_unique' => 'Nama kategori sudah ada, silakan gunakan nama lain.'
-                ]
-            ]
-        ];
-
-        if (! $this->validate($rules)) {
+        if (!$this->validate($this->_getValidationRules($id))) {
             return redirect()->back()->withInput();
         }
 
-        // Update data
         $this->categoryModel->update($id, [
             'name' => $this->request->getVar('name')
         ]);
         
-        // Set pesan sukses
         session()->setFlashdata('success', 'Kategori berhasil diubah.');
         
         return redirect()->to('/categories');
     }
     
-    // Menghapus data kategori
     public function delete($id)
     {
         $productsInCategory = $this->productModel->where('category_id', $id)->countAllResults();
@@ -114,4 +93,23 @@ class CategoryController extends BaseController
         
         return redirect()->to('/categories');
     }
+
+    private function _getValidationRules(?string $id = null): array
+    {
+        $uniqueRule = 'is_unique[categories.name]';
+        if ($id) {
+            $uniqueRule = "is_unique[categories.name,id,{$id}]";
+        }
+
+        return [
+            'name' => [
+                'rules' => 'required|' . $uniqueRule,
+                'errors' => [
+                    'required' => 'Nama kategori wajib diisi.',
+                    'is_unique' => 'Nama kategori sudah ada, silakan gunakan nama lain.'
+                ]
+            ]
+        ];
+    }
+
 }

@@ -25,7 +25,6 @@ class PurchaseController extends BaseController
         $data = [
             'title' => 'Pembelian',
             'menu' => 'purchases',
-            // PERBAIKAN DI SINI: Tambahkan ->findAll()
             'purchases' => $this->purchaseModel->getPurchasesWithVendor()->findAll()
         ];
         return view('purchases/index', $data);
@@ -33,7 +32,7 @@ class PurchaseController extends BaseController
     
     public function show($id)
     {
-        $purchase = $this->purchaseModel->select('purchases.*, vendors.name as vendor_name')->join('vendors', 'vendors.id = purchases.vendor_id')->where('purchases.id', $id)->first();
+        $purchase = $this->purchaseModel->getPurchaseWithVendor($id);
 
         if (empty($purchase)) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Data Pembelian dengan ID ' . $id . ' tidak ditemukan.');
@@ -48,6 +47,7 @@ class PurchaseController extends BaseController
         return view('purchases/show', $data);
     }
 
+
     public function new()
     {
         $data = [
@@ -61,35 +61,7 @@ class PurchaseController extends BaseController
 
     public function create()
     {
-        $rules = [
-            'vendor_id' => [
-                'rules' => 'required',
-                'errors' => [
-                    'required' => 'Vendor atau pemasok harus dipilih.'
-                ]
-            ],
-            'purchase_date' => [
-                'rules' => 'required|valid_date',
-                'errors' => [
-                    'required'   => 'Tanggal pembelian wajib diisi.',
-                    'valid_date' => 'Format tanggal pembelian tidak valid.'
-                ]
-            ],
-            'buyer_name' => [
-                'rules' => 'required',
-                'errors' => [
-                    'required' => 'Nama pembeli harus diisi.'
-                ]
-            ],
-            'products' => [
-                'rules' => 'required',
-                'errors' => [
-                    'required' => 'Minimal harus ada satu produk dalam daftar pembelian.'
-                ]
-            ]
-        ];
-        
-        if (! $this->validate($rules)) {
+        if (!$this->validate($this->_getValidationRules())) {
             return redirect()->back()->withInput();
         }
 
@@ -138,7 +110,6 @@ class PurchaseController extends BaseController
         if (empty($purchase)) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Data Pembelian dengan ID ' . $id . ' tidak ditemukan.');
         }
-
         $data = [
             'title' => 'Edit',
             'menu' => 'purchases',
@@ -152,26 +123,7 @@ class PurchaseController extends BaseController
 
     public function update($id)
     {
-        $rules = [
-            'vendor_id' => [
-                'rules' => 'required',
-                'errors' => ['required' => 'Vendor atau pemasok harus dipilih.']
-            ],
-            'purchase_date' => [
-                'rules' => 'required|valid_date',
-                'errors' => ['required' => 'Tanggal pembelian wajib diisi.', 'valid_date' => 'Format tanggal pembelian tidak valid.']
-            ],
-            'buyer_name' => [
-                'rules' => 'required',
-                'errors' => ['required' => 'Nama pembeli harus diisi.']
-            ],
-            'products' => [
-                'rules' => 'required',
-                'errors' => ['required' => 'Minimal harus ada satu produk dalam daftar pembelian.']
-            ]
-        ];
-
-        if (!$this->validate($rules)) {
+        if (!$this->validate($this->_getValidationRules())) {
             return redirect()->back()->withInput();
         }
 
@@ -237,5 +189,36 @@ class PurchaseController extends BaseController
             session()->setFlashdata('error', 'Gagal menghapus transaksi pembelian: ' . $e->getMessage());
             return redirect()->to('/purchases');
         }
+    }
+
+    private function _getValidationRules(): array
+    {
+        return [
+            'vendor_id' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Vendor atau pemasok harus dipilih.'
+                ]
+            ],
+            'purchase_date' => [
+                'rules' => 'required|valid_date',
+                'errors' => [
+                    'required'   => 'Tanggal pembelian wajib diisi.',
+                    'valid_date' => 'Format tanggal pembelian tidak valid.'
+                ]
+            ],
+            'buyer_name' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Nama pembeli harus diisi.'
+                ]
+            ],
+            'products' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Minimal harus ada satu produk dalam daftar pembelian.'
+                ]
+            ]
+        ];
     }
 }

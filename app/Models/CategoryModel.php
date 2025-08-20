@@ -13,4 +13,13 @@ class CategoryModel extends Model
     protected $dateFormat    = 'datetime';
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
+
+    /* DASHBOARD - Total Kategori *
+     * Mengambil jumlah total kategori.
+     * @return int
+     */
+    public function getTotalCategories(): int
+    {
+        return $this->countAllResults();
+    }
 }
