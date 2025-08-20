@@ -145,3 +145,32 @@ Pengerjaan proyek ini dalam waktu 3 hari menuntut ketajaman logika dan pengambil
         -   **Integritas Relasi:** Menerapkan batasan pada penghapusan data untuk mencegah penghapusan data _master_ yang sudah digunakan.
 
 Secara keseluruhan, proyek ini tidak hanya memenuhi persyaratan fungsional, tetapi juga menampilkan pemahaman yang mendalam tentang arsitektur perangkat lunak, logika bisnis, dan praktik _clean code_.
+
+## Screenshots UI
+
+1.  **Halaman Dashboard**
+   <img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/0d23d2af-6ded-467e-b178-65a91f88ea09" />
+
+2.  **Halaman Barang**
+    <img width="1893" height="1079" alt="image" src="https://github.com/user-attachments/assets/9755827a-1aea-48d7-8047-6fef62e5d7be" />
+
+3.  **Halaman Tambah Barang**
+    <img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/ecb0a2bf-9051-4fc3-8a72-8f67e7c3bdd3" />
+
+4.  **Halaman Pembelian**
+    <img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/d5c43b35-cba7-4785-b57c-64532624f5ad" />
+
+5.  **Halaman Tambah Pembelian**
+    <img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/cd1745dd-109e-471f-a2b6-bee1cd421a6d" />
+
+6.  **Halaman Barang Masuk**
+    <img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/f76f67d7-8646-4aff-9b5e-e49cc71a3e2d" />
+
+7.  **Halaman Proses Barang Masuk**
+    <img width="1894" height="1072" alt="image" src="https://github.com/user-attachments/assets/8ccd06d6-40bb-45c2-8524-81e6bdc11444" />
+
+8.   **Laporan Barang Keluar**
+    <img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/5ddd0473-6083-4801-bc36-e3770c26236e" />
+
+9.  **Laporan Stok Barang**
+    <img width="1887" height="1079" alt="image" src="https://github.com/user-attachments/assets/f85d0588-5041-4e6d-a4c5-c3b0604d64c0" />
