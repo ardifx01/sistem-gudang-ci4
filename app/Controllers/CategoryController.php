@@ -17,7 +17,8 @@ class CategoryController extends BaseController
     public function index()
     {
         $data = [
-            'title' => 'Daftar Kategori',
+            'title' => 'Kategori',
+            'menu' => 'categories',
             'categories' => $this->categoryModel->orderBy('name', 'ASC')->findAll()
         ];
         return view('categories/index', $data);
@@ -26,7 +27,8 @@ class CategoryController extends BaseController
     public function new()
     {
         $data = [
-            'title' => 'Tambah Kategori Baru'
+            'title' => 'Tambah',
+            'menu' => 'categories',
         ];
         return view('categories/new', $data);
     }
@@ -57,7 +59,8 @@ class CategoryController extends BaseController
     public function edit($id)
     {
         $data = [
-            'title' => 'Edit Kategori',
+            'title' => 'Edit',
+            'menu' => 'categories',
             'category' => $this->categoryModel->find($id)
         ];
         return view('categories/edit', $data);

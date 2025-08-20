@@ -18,7 +18,9 @@ class OutgoingController extends BaseController
     public function index()
     {
         $data = [
-            'title' => 'Daftar Transaksi Barang Keluar',
+            'title' => 'Barang Keluar',
+            'menu'    => 'transaksi',
+            'submenu' => 'outgoing',
             'transactions' => $this->outgoingModel->getOutgoingTransactions()
         ];
         return view('outgoing/index', $data);
@@ -28,7 +30,9 @@ class OutgoingController extends BaseController
     public function new()
     {
         $data = [
-            'title' => 'Catat Barang Keluar',
+            'title' => 'Tambah',
+            'menu'    => 'transaksi',
+            'submenu' => 'outgoing',
             'products' => $this->productModel->orderBy('name', 'ASC')->findAll()
         ];
         return view('outgoing/new', $data);

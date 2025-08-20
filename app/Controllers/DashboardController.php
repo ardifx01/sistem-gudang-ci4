@@ -18,6 +18,7 @@ class DashboardController extends BaseController
         // Siapkan data untuk dikirim ke view
         $data = [
             'title' => 'Dashboard',
+            'menu'  => 'dashboard',
             'total_products' => $productModel->countAllResults(),
             'total_vendors' => $vendorModel->countAllResults(),
             'incoming_today' => $incomingModel->where('DATE(incoming_date)', date('Y-m-d'))->countAllResults(),

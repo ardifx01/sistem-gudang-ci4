@@ -17,7 +17,8 @@ class VendorController extends BaseController
     public function index()
     {
         $data = [
-            'title' => 'Daftar Vendor',
+            'title' => 'Vendor',
+            'menu' => 'vendors',
             'vendors' => $this->vendorModel->orderBy('name', 'ASC')->findAll()
         ];
         return view('vendors/index', $data);
@@ -26,7 +27,8 @@ class VendorController extends BaseController
     public function new()
     {
         $data = [
-            'title' => 'Tambah Vendor Baru'
+            'title' => 'Tambah',
+            'menu' => 'vendors'
         ];
         return view('vendors/new', $data);
     }
@@ -70,7 +72,8 @@ class VendorController extends BaseController
     public function edit($id)
     {
         $data = [
-            'title' => 'Edit Vendor',
+            'title' => 'Edit',
+            'menu' => 'vendors',
             'vendor' => $this->vendorModel->find($id)
         ];
         return view('vendors/edit', $data);

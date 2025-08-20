@@ -11,15 +11,10 @@ class PurchaseModel extends Model
 
     public function getPurchasesWithVendor()
     {
-        // return $this->db->table('purchases')
-        //     ->join('vendors', 'vendors.id = purchases.vendor_id')
-        //     ->select('purchases.*, vendors.name as vendor_name')
-        //     ->orderBy('purchases.purchase_date', 'DESC')
-        //     ->get()->getResultArray();
-
         return $this->join('vendors', 'vendors.id = purchases.vendor_id')
                 ->select('purchases.*, vendors.name as vendor_name')
                 ->orderBy('purchases.purchase_date', 'DESC')
                 ->orderBy('purchases.status', 'ASC');
     }
+    
 }

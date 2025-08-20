@@ -28,7 +28,9 @@ class IncomingController extends BaseController
     public function index()
     {
         $data = [
-            'title' => 'Barang Masuk dari Pembelian',
+            'title' => 'Barang Masuk',
+            'menu'    => 'transaksi',
+            'submenu' => 'incoming',
             'purchases' => $this->purchaseModel->where('status', 'Pending')->getPurchasesWithVendor()->findAll()
         ];
         return view('incoming/index', $data);
@@ -40,7 +42,9 @@ class IncomingController extends BaseController
     public function process($purchaseId)
     {
         $data = [
-            'title' => 'Proses Penerimaan Barang',
+            'title' => 'Proses',
+            'menu'    => 'transaksi',
+            'submenu' => 'incoming',
             'purchase' => $this->purchaseModel->select('purchases.*, vendors.name as vendor_name')->join('vendors', 'vendors.id = purchases.vendor_id')->where('purchases.id', $purchaseId)->first(),
             'details' => $this->purchaseDetailModel->getPurchaseDetails($purchaseId)
         ];

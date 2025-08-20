@@ -51,3 +51,6 @@ $routes->group('reports', function($routes) {
     $routes->get('stock', 'ReportController::stock');
 });
 
+$routes->get('purchases/(:num)/edit', 'PurchaseController::edit/$1');
+$routes->put('purchases/(:num)', 'PurchaseController::update/$1');
+$routes->delete('purchases/(:num)', 'PurchaseController::delete/$1');

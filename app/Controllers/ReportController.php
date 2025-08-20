@@ -30,6 +30,8 @@ class ReportController extends BaseController
 
         $data = [
             'title' => 'Laporan Barang Masuk',
+            'menu'    => 'reports',
+            'submenu' => 'reports_incoming',
             'transactions' => $transactions,
             'startDate' => $startDate,
             'endDate' => $endDate,
@@ -60,6 +62,8 @@ class ReportController extends BaseController
         $totalQuantity = array_sum(array_column($transactions, 'quantity'));
         $data = [
             'title' => 'Laporan Barang Keluar',
+            'menu'    => 'reports',
+            'submenu' => 'reports_outgoing',
             'transactions' => $transactions,
             'startDate' => $startDate,
             'endDate' => $endDate,
@@ -75,7 +79,9 @@ class ReportController extends BaseController
     {
         $productModel = new ProductModel();
         $data = [
-            'title' => 'Laporan Stok Barang Terkini',
+            'title' => 'Laporan Stok',
+            'menu'    => 'reports',
+            'submenu' => 'reports_stock',
             'products' => $productModel->getProductsWithCategory()
         ];
         return view('reports/stock', $data);
